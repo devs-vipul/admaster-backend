@@ -1,0 +1,37 @@
+# FastAPI & Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# MongoDB
+motor==3.3.2  # Async MongoDB driver
+pymongo==4.6.1
+beanie==1.24.0  # ODM for MongoDB
+
+# Authentication & Security
+pyjwt==2.8.0
+cryptography==42.0.0
+python-jose[cryptography]==3.3.0
+
+# Clerk Webhook Verification
+svix==1.21.0
+
+# Environment & Config
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# HTTP & Requests
+httpx==0.26.0
+requests==2.31.0
+
+# Validation & Utils
+email-validator==2.1.0
+python-dateutil==2.8.2
+
+# Development
+pytest==7.4.4
+pytest-asyncio==0.23.3
+black==24.1.1
+ruff==0.1.13
+
