@@ -14,6 +14,8 @@ from app.schemas.business import (
     BusinessListResponse,
 )
 from app.services.business_service import BusinessService
+from app.services.admaster_crawler_service import AdMasterCrawlerService
+from app.schemas.crawler import CrawlResponse
 
 
 router = APIRouter(prefix="/businesses", tags=["businesses"])
@@ -89,6 +91,31 @@ async def get_business(
         )
     
     return BusinessResponse(**business.model_dump())
+
+
+@router.post(
+    "/{business_id}/crawl",
+    response_model=CrawlResponse,
+    summary="Run AdMaster-Crawler against the business website",
+)
+async def crawl_business(
+    business_id: str,
+    current_user: User = Depends(get_current_active_user),
+):
+    """Fetch and analyze the business website to extract brand info."""
+    business = await BusinessService.get_business_by_id(
+        business_id=business_id, user_id=current_user.clerk_id
+    )
+
+    if not business:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Business not found"
+        )
+
+    # Convert Pydantic HttpUrl to string for httpx
+    website_url = str(business.website)
+    result = await AdMasterCrawlerService.crawl(website_url)
+    return CrawlResponse(**result.__dict__)
 
 
 @router.put(
