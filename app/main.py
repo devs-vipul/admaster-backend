@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import db
-from app.api.v1 import businesses, users, webhooks
+from app.api.v1 import businesses, users, webhooks, brands
 
 
 @asynccontextmanager
@@ -73,6 +73,7 @@ async def health_check():
 app.include_router(businesses.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(webhooks.router, prefix=settings.API_V1_PREFIX)
+app.include_router(brands.router, prefix=settings.API_V1_PREFIX)
 
 
 if __name__ == "__main__":

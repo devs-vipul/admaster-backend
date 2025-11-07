@@ -8,6 +8,7 @@ from typing import Optional
 from app.core.config import settings
 from app.models.user import User
 from app.models.business import Business
+from app.models.brand import Brand
 
 
 class Database:
@@ -27,7 +28,7 @@ class Database:
             # Initialize Beanie ODM with models
             await init_beanie(
                 database=cls.db,
-                document_models=[User, Business],
+                document_models=[User, Business, Brand],
             )
             
             print(f"✅ Connected to MongoDB: {settings.MONGODB_DB_NAME}")
