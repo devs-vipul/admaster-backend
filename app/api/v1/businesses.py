@@ -16,6 +16,7 @@ from app.schemas.business import (
 from app.services.business_service import BusinessService
 from app.services.admaster_crawler_service import AdMasterCrawlerService
 from app.schemas.crawler import CrawlResponse
+from app.core.exceptions import NotFoundError
 
 
 router = APIRouter(prefix="/businesses", tags=["businesses"])
@@ -85,10 +86,7 @@ async def get_business(
     )
     
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
     
     return BusinessResponse(**business.model_dump())
 
@@ -108,12 +106,10 @@ async def crawl_business(
     )
 
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Business not found"
-        )
+        raise NotFoundError("Business", business_id)
 
-    # Convert Pydantic HttpUrl to string for httpx
-    website_url = str(business.website)
+    # website is already a string
+    website_url = business.website
     result = await AdMasterCrawlerService.crawl(website_url)
     return CrawlResponse(**result.__dict__)
 
@@ -136,10 +132,7 @@ async def update_business(
     )
     
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
     
     return BusinessResponse(**business.model_dump())
 
@@ -160,10 +153,7 @@ async def delete_business(
     )
     
     if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
 
 
 @router.get(

@@ -10,6 +10,7 @@ from app.models.business import Business
 from app.schemas.brand import BrandResponse, BrandUpdate
 from app.services.brand_service import BrandService
 from app.services.business_service import BusinessService
+from app.core.exceptions import NotFoundError
 
 
 router = APIRouter(prefix="/brands", tags=["brands"])
@@ -32,10 +33,7 @@ async def get_brand_by_business(
     )
     
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
     
     # Get or create brand
     brand = await BrandService.get_or_create_brand(business_id)
@@ -61,10 +59,7 @@ async def update_brand(
     )
     
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
     
     # Create or update brand
     brand = await BrandService.create_or_update_brand(
@@ -92,18 +87,12 @@ async def mark_brand_complete(
     )
     
     if not business:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Business not found",
-        )
+        raise NotFoundError("Business", business_id)
     
     brand = await BrandService.mark_brand_complete(business_id)
     
     if not brand:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Brand not found",
-        )
+        raise NotFoundError("Brand", business_id)
     
     return BrandResponse(**brand.model_dump())
 

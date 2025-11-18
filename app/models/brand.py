@@ -5,7 +5,7 @@ Each brand belongs to a business
 from datetime import datetime
 from typing import List, Optional
 from beanie import Document
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 
 class Brand(Document):
@@ -19,7 +19,7 @@ class Brand(Document):
     
     # Brand information (from crawler)
     description: str = Field(default="", max_length=500)
-    logo_url: Optional[HttpUrl] = None
+    logo_url: Optional[str] = None  # Store as string to avoid MongoDB serialization issues
     brand_colors: List[str] = Field(default_factory=list)  # Hex color codes
     tone_of_voice: List[str] = Field(default_factory=list)  # e.g., ["Professional", "Optimistic"]
     language: str = Field(default="en", max_length=10)  # BCP-47 language code
@@ -54,7 +54,7 @@ class Brand(Document):
     async def update_brand_info(
         self,
         description: Optional[str] = None,
-        logo_url: Optional[HttpUrl] = None,
+        logo_url: Optional[str] = None,
         brand_colors: Optional[List[str]] = None,
         tone_of_voice: Optional[List[str]] = None,
         language: Optional[str] = None,

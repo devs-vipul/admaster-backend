@@ -3,7 +3,7 @@ Pydantic schemas for Business API requests/responses
 """
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.business import BusinessStatus, BusinessSize, Industry
 
@@ -11,9 +11,20 @@ from app.models.business import BusinessStatus, BusinessSize, Industry
 class BusinessBase(BaseModel):
     """Base business schema"""
     name: str = Field(..., min_length=1, max_length=200)
-    website: HttpUrl
+    website: str = Field(..., description="Business website URL")
     industry: Industry
     size: BusinessSize = BusinessSize.SMALL
+    
+    @field_validator("website")
+    @classmethod
+    def validate_website(cls, v: str) -> str:
+        """Validate that website is a valid URL"""
+        if not v:
+            raise ValueError("Website URL is required")
+        # Basic URL validation - ensure it starts with http:// or https://
+        if not v.startswith(("http://", "https://")):
+            raise ValueError("Website URL must start with http:// or https://")
+        return v
 
 
 class BusinessCreate(BusinessBase):
@@ -24,10 +35,20 @@ class BusinessCreate(BusinessBase):
 class BusinessUpdate(BaseModel):
     """Schema for updating a business"""
     name: Optional[str] = Field(None, min_length=1, max_length=200)
-    website: Optional[HttpUrl] = None
+    website: Optional[str] = None
     industry: Optional[Industry] = None
     size: Optional[BusinessSize] = None
     status: Optional[BusinessStatus] = None
+    
+    @field_validator("website")
+    @classmethod
+    def validate_website(cls, v: Optional[str]) -> Optional[str]:
+        """Validate that website is a valid URL if provided"""
+        if v is None:
+            return v
+        if not v.startswith(("http://", "https://")):
+            raise ValueError("Website URL must start with http:// or https://")
+        return v
 
 
 class BusinessResponse(BusinessBase):

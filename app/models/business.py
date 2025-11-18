@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 from enum import Enum
 from beanie import Document
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 
 class BusinessStatus(str, Enum):
@@ -52,7 +52,7 @@ class Business(Document):
     
     # Business information
     name: str = Field(..., min_length=1, max_length=200)
-    website: HttpUrl
+    website: str  # Store as string to avoid MongoDB serialization issues
     industry: Industry
     size: BusinessSize = BusinessSize.SMALL
     
