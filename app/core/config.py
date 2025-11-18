@@ -1,7 +1,7 @@
 """
 Application configuration and environment variables
 """
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -34,8 +34,15 @@ class Settings(BaseSettings):
     
     # Security
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ALGORITHM: str  # JWT algorithm (e.g., "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int  # Token expiration in minutes
+    
+    # Campaign defaults (from env or constants)
+    DEFAULT_CURRENCY: Optional[str] = None  # Default currency code (e.g., "INR", "USD")
+    DEFAULT_DAILY_BUDGET: Optional[float] = None  # Default daily budget (e.g., 0.0)
+    
+    # Note: Gemini AI configuration (GOOGLE_API_KEY, GEMINI_MODEL, DEFAULT_MODEL) 
+    # is handled directly via os.getenv() in the service code, not through Settings
     
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
@@ -49,6 +56,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",  # Ignore extra env vars not defined in Settings (e.g., GEMINI_API_KEY, GEMINI_MODEL, DEFAULT_MODEL)
     )
 
 

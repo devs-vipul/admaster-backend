@@ -2,12 +2,24 @@
 AdMaster AI Backend - FastAPI Application
 """
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Load .env file for os.getenv() to work
+load_dotenv()
+
 from app.core.config import settings
 from app.core.database import db
-from app.api.v1 import businesses, users, webhooks, brands
+from app.core.exceptions import AdMasterException
+from app.core.error_handler import (
+    admaster_exception_handler,
+    validation_exception_handler,
+    general_exception_handler,
+)
+from app.api.v1 import businesses, users, webhooks, brands, campaigns, platforms
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError as PydanticValidationError
 
 
 @asynccontextmanager
@@ -46,6 +58,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Error handlers
+app.add_exception_handler(AdMasterException, admaster_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(PydanticValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
+
 
 # Health check
 @app.get("/", tags=["health"])
@@ -74,6 +92,8 @@ app.include_router(businesses.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(webhooks.router, prefix=settings.API_V1_PREFIX)
 app.include_router(brands.router, prefix=settings.API_V1_PREFIX)
+app.include_router(campaigns.router, prefix=settings.API_V1_PREFIX)
+app.include_router(platforms.router, prefix=settings.API_V1_PREFIX)
 
 
 if __name__ == "__main__":
